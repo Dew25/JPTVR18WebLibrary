@@ -14,6 +14,7 @@
   <body>
     <h1>Создание книги!</h1>
     <p>${info}</p>
-    <a href="createBook">Создать книгу</a>
+    <a href="showCreateBook">Создать книгу</a><br>
+    <a href="showListBooks">Список книг</a>
   </body>
 </html>

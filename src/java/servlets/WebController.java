@@ -8,6 +8,7 @@ package servlets;
 import entity.Book;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -21,7 +22,9 @@ import session.BookFacade;
  * @author Melnikov
  */
 @WebServlet(name = "WebController", urlPatterns = {
+    "/showCreateBook",
     "/createBook",
+    "/showListBooks",
 })
 public class WebController extends HttpServlet {
     @EJB private BookFacade bookFacade;
@@ -40,11 +43,31 @@ public class WebController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         String path = request.getServletPath();
         switch (path) {
+            case "/showCreateBook":
+                request.getRequestDispatcher("/showCreateBook.jsp")
+                        .forward(request, response);
+                break;
             case "/createBook":
-                Book book = new Book("Война и мир", "Л.Толстой", 2010, "123-123123");
+                String name = request.getParameter("name");
+                String author = request.getParameter("author");
+                String publishedYear = request.getParameter("publishedYear");
+                String isbn = request.getParameter("isbn");
+                if(name == null || author == null || publishedYear == null || isbn == null){
+                    request.setAttribute("info", "Некорректные данные!");
+                    request.getRequestDispatcher("/showCreateBook")
+                        .forward(request, response);
+                    break; 
+                }
+                Book book = new Book(name, author, Integer.parseInt(publishedYear), isbn);
                 bookFacade.create(book);
                 request.setAttribute("info", "Создана книга: "+book.toString());
                 request.getRequestDispatcher("/index.jsp")
+                        .forward(request, response);
+                break;
+            case "/showListBooks":    
+                List<Book> listBooks = bookFacade.findAll();
+                request.setAttribute("listBooks", listBooks);
+                request.getRequestDispatcher("/showListBooks.jsp")
                         .forward(request, response);
                 break;
             
