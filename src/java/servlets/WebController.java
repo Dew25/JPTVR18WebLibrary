@@ -6,8 +6,8 @@
 package servlets;
 
 import entity.Book;
+import entity.Reader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 import javax.ejb.EJB;
 import javax.servlet.ServletException;
@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import session.BookFacade;
+import session.ReaderFacade;
 
 /**
  *
@@ -25,9 +26,14 @@ import session.BookFacade;
     "/showCreateBook",
     "/createBook",
     "/showListBooks",
+    "/showCreateReader",
+    "/createReader",
+    "/showListReaders",
+    
 })
 public class WebController extends HttpServlet {
     @EJB private BookFacade bookFacade;
+    @EJB private ReaderFacade readerFacade;
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -64,13 +70,55 @@ public class WebController extends HttpServlet {
                 request.getRequestDispatcher("/index.jsp")
                         .forward(request, response);
                 break;
+            
             case "/showListBooks":    
                 List<Book> listBooks = bookFacade.findAll();
                 request.setAttribute("listBooks", listBooks);
                 request.getRequestDispatcher("/showListBooks.jsp")
                         .forward(request, response);
                 break;
-            
+            case "/showCreateReader":
+                request.getRequestDispatcher("/showCreateReader.jsp")
+                        .forward(request, response);
+                break;
+            case "/createReader":
+                String firstname = request.getParameter("firstname");
+                String lastname = request.getParameter("lastname");
+                String phone = request.getParameter("phone");
+                String day = request.getParameter("day");
+                String month = request.getParameter("month");
+                String year = request.getParameter("year");
+                if(firstname == null || lastname == null
+                        || phone == null || day == null
+                        || month == null || year == null){
+                  request.setAttribute("firstname", firstname);
+                  request.setAttribute("lastname", lastname);
+                  request.setAttribute("phone", phone);
+                  request.setAttribute("day", day);
+                  request.setAttribute("month", month);
+                  request.setAttribute("year", year);
+                  request.getRequestDispatcher("/showCreateReader.jsp")
+                        .forward(request, response);
+                }
+                Reader reader = new Reader(
+                        firstname, 
+                        lastname, 
+                        Integer.parseInt(day), 
+                        Integer.parseInt(month), 
+                        Integer.parseInt(year), 
+                        phone
+                );
+                readerFacade.create(reader);
+                request.setAttribute("info", "Читатель создан: "+reader.toString());
+                request.getRequestDispatcher("/index.jsp")
+                        .forward(request, response);
+                break;
+            case "/showListReaders":    
+                List<Reader> listReaders = readerFacade.findAll();
+                request.setAttribute("listReaders", listReaders);
+                request.getRequestDispatcher("/showListReaders.jsp")
+                        .forward(request, response);
+                break;
         }
     }
 
