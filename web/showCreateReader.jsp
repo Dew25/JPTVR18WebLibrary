@@ -16,7 +16,7 @@
     <p>${info}</p>
     Заполните поля:
     <br>
-      <form action="сreateReader" method="POST">
+      <form action="createReader" method="POST">
         Имя: <input type="text" name="firstname" value="${firstname}"><br>
         Фамилия: <input type="text" name="lastname" value="${lastname}"><br>
         Телефон: <input type="text" name="phone" value="${phone}"><br>
@@ -24,6 +24,8 @@
         день: <input type="text" name="day" value="${day}"><br>
         месяц: <input type="text" name="month" value="${month}"><br>
         год: <input type="text" name="year" value="${year}"><br>
+        Логин: <input type="text" name="login" value="${login}"><br>
+        Пароль: <input type="password" name="password" value=""><br>
         <input type="submit" value="Добавить">
     </form>
   </body>

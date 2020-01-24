@@ -7,6 +7,7 @@ package servlets;
 
 import entity.Book;
 import entity.Reader;
+import entity.User;
 import java.io.IOException;
 import java.util.List;
 import javax.ejb.EJB;
@@ -15,25 +16,27 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import session.BookFacade;
 import session.ReaderFacade;
+import session.UserFacade;
 
 /**
  *
  * @author Melnikov
  */
-@WebServlet(name = "WebController", urlPatterns = {
+@WebServlet(name = "UserController", urlPatterns = {
     "/showCreateBook",
     "/createBook",
     "/showListBooks",
-    "/showCreateReader",
-    "/createReader",
+    
     "/showListReaders",
     
 })
-public class WebController extends HttpServlet {
+public class UserController extends HttpServlet {
     @EJB private BookFacade bookFacade;
     @EJB private ReaderFacade readerFacade;
+    @EJB private UserFacade userFacade;
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
@@ -47,6 +50,19 @@ public class WebController extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         request.setCharacterEncoding("UTF-8");
+        HttpSession session = request.getSession(false);
+        if(session == null){
+            request.setAttribute("info", "У вас нет прав, войдите или зарегистрируйтесь");
+            request.getRequestDispatcher("/showLogin.jsp")
+                        .forward(request, response);
+        }
+        User user = null;
+        user = (User) session.getAttribute("user");
+        if(user == null){
+            request.setAttribute("info", "У вас нет прав, войдите или зарегистрируйтесь");
+            request.getRequestDispatcher("/showLogin.jsp")
+                        .forward(request, response);
+        }
         String path = request.getServletPath();
         switch (path) {
             case "/showCreateBook":
@@ -77,42 +93,7 @@ public class WebController extends HttpServlet {
                 request.getRequestDispatcher("/showListBooks.jsp")
                         .forward(request, response);
                 break;
-            case "/showCreateReader":
-                request.getRequestDispatcher("/showCreateReader.jsp")
-                        .forward(request, response);
-                break;
-            case "/createReader":
-                String firstname = request.getParameter("firstname");
-                String lastname = request.getParameter("lastname");
-                String phone = request.getParameter("phone");
-                String day = request.getParameter("day");
-                String month = request.getParameter("month");
-                String year = request.getParameter("year");
-                if(firstname == null || lastname == null
-                        || phone == null || day == null
-                        || month == null || year == null){
-                  request.setAttribute("firstname", firstname);
-                  request.setAttribute("lastname", lastname);
-                  request.setAttribute("phone", phone);
-                  request.setAttribute("day", day);
-                  request.setAttribute("month", month);
-                  request.setAttribute("year", year);
-                  request.getRequestDispatcher("/showCreateReader.jsp")
-                        .forward(request, response);
-                }
-                Reader reader = new Reader(
-                        firstname, 
-                        lastname, 
-                        Integer.parseInt(day), 
-                        Integer.parseInt(month), 
-                        Integer.parseInt(year), 
-                        phone
-                );
-                readerFacade.create(reader);
-                request.setAttribute("info", "Читатель создан: "+reader.toString());
-                request.getRequestDispatcher("/index.jsp")
-                        .forward(request, response);
-                break;
+            
             case "/showListReaders":    
                 List<Reader> listReaders = readerFacade.findAll();
                 request.setAttribute("listReaders", listReaders);
